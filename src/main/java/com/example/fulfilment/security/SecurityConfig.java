@@ -69,7 +69,7 @@ public class SecurityConfig {
                     .hasAuthority("READ_PRODUCT")
                     .anyRequest()
                     .authenticated())
-        /* This will put the ExceptionTranslationFilter before the JwtAuthenticationFilter in the filter chain.
+        /* This will put the JwtAuthenticationFilter after the ExceptionTranslationFilter in the filter chain.
         This way ExceptionTranslationFilter can handle exceptions that are thrown in JwtAuthenticationFilter
         since they will bubble up through the call stack. ExceptionTranslationFilter handles the exceptions
         using the AuthenticationEntryPoint and AccessDeniedHandler that we configured below.*/

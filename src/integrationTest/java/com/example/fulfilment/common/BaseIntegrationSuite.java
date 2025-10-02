@@ -33,9 +33,7 @@ public abstract class BaseIntegrationSuite {
   /* This code runs once when the BaseIntegrationSuite class is first loaded by JVM. This ensures that
   the container is only started once at the start of the test-run lifecycle and reused throughout
   the whole test-run. It also ensures that the container is started before anything else, which means
-  that the container is already running when specific testcases start executing, but also that all the
-  dynamic properties (values that only become defined once the container is up) are already available
-  when @DynamicPropertySource methods get called.*/
+  that the container is already running when specific testcases start executing.*/
   static {
     POSTGRES
         .start(); /*this will also register a JVM shutdown hook that calls POSTGRES.stop() which ensures container is cleanly stopped when JVM stops*/
