@@ -51,12 +51,14 @@ public class SecurityConfig {
 
     JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtAuthManager);
 
-    return http.securityMatcher("/web/**", "/authenticate", "/hello")
+    return http.securityMatcher("/web/**", "/authenticate", "/hello**")
         .authorizeHttpRequests(
             authorizeRequests ->
                 authorizeRequests
                     .requestMatchers(HttpMethod.POST, "/authenticate")
                     .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/hello2")
+                    .hasAuthority("HELLO2")
                     .anyRequest()
                     .authenticated())
         /* This will put the JwtAuthenticationFilter after the ExceptionTranslationFilter in the filter chain.
