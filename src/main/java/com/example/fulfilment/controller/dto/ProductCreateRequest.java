@@ -8,9 +8,6 @@ import lombok.Data;
 @Data
 public class ProductCreateRequest {
 
-  @NotBlank(message = "Merchant Codept ID is required")
-  private String merchantCodeptId;
-
   @NotBlank(message = "Warehouse Codept ID is required")
   private String warehouseCodeptId;
 

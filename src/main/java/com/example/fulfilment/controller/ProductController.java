@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/api/merchant/products")
 public class ProductController {
 
   private final ProductService productService;
@@ -25,33 +25,38 @@ public class ProductController {
 
   @PostMapping
   public ResponseEntity<ProductResponse> createProduct(
+      @RequestAttribute("merchantId") String merchantId,
       @Valid @RequestBody ProductCreateRequest request) {
-    ProductCreateCommand productCreateCommand = productControllerMapper.toCommand(request);
+    ProductCreateCommand productCreateCommand =
+        productControllerMapper.toCommand(request, merchantId);
     ProductResult savedProduct = productService.saveProduct(productCreateCommand);
     ProductResponse productResponse = productControllerMapper.fromProductResult(savedProduct);
     return ResponseEntity.ok(productResponse);
   }
 
   @GetMapping
-  public ResponseEntity<List<ProductResponse>> getAllProducts() {
-    List<ProductResult> products = productService.getAllProducts();
+  public ResponseEntity<List<ProductResponse>> getAllProducts(
+      @RequestAttribute("merchantId") String merchantId) {
+    List<ProductResult> products = productService.getProductsByMerchantId(merchantId);
     List<ProductResponse> productResponses =
         products.stream().map(productControllerMapper::fromProductResult).toList();
     return ResponseEntity.ok(productResponses);
   }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
+  @GetMapping("/{merchantSku}")
+  public ResponseEntity<ProductResponse> getProductByMerchantSku(
+      @PathVariable String merchantSku, @RequestAttribute("merchantId") String merchantId) {
     return productService
-        .getProductById(id)
+        .getProductByMerchantSkuAndMerchantId(merchantSku, merchantId)
         .map(productControllerMapper::fromProductResult)
         .map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
   }
 
-  @PatchMapping("/{id}/deactivate")
-  public ResponseEntity<Void> deactivateProduct(@PathVariable Long id) {
-    productService.deactivateProduct(id);
+  @PatchMapping("/{merchantSku}/deactivate")
+  public ResponseEntity<Void> deactivateProduct(
+      @PathVariable String merchantSku, @RequestAttribute("merchantId") String merchantId) {
+    productService.deactivateProduct(merchantSku, merchantId);
     return ResponseEntity.noContent().build();
   }
 }
