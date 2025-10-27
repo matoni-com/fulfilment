@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,7 +21,11 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     String jwt = (String) authentication.getCredentials();
 
     try {
-      return jwtValidator.validateToken(jwt);
+      var result = jwtValidator.validateToken(jwt);
+      String username = result.getLeft();
+      var grantedAuthorities = result.getRight().stream().map(SimpleGrantedAuthority::new).toList();
+
+      return new JwtAuthenticationToken(username, jwt, grantedAuthorities);
     } catch (InvalidJwtException e) {
       throw new BadCredentialsException("Invalid JWT", e);
     }
