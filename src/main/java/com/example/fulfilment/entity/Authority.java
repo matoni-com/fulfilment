@@ -19,7 +19,7 @@ public class Authority {
   @Column(name = "authority", nullable = false)
   private String authority;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", referencedColumnName = "id")
   private User user;
 }
