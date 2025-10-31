@@ -22,7 +22,7 @@ public class User {
   private String username;
 
   @NonNull
-  @Column(name = "password")
+  @Column(name = "password", nullable = false)
   private String password;
 
   @OneToMany(
