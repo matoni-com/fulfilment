@@ -65,7 +65,7 @@ public class ClientApiSecurityTests extends BaseIntegrationSuite {
 
     Product product = new Product();
     product.setMerchantId("MT");
-    product.setWarehouseId("warehouse-abc");
+    product.setWarehouseId("WH");
     product.setMerchantSku("sku-001");
     product.setItemName("Test Product");
     product.setIsActive(true);
@@ -138,7 +138,7 @@ public class ClientApiSecurityTests extends BaseIntegrationSuite {
                         [
                             {
                                 "merchantId": "MT",
-                                "warehouseId": "warehouse-abc",
+                                "warehouseId": "WH",
                                 "merchantSku": "sku-001",
                                 "itemName": "Test Product",
                                 "isActive": true
