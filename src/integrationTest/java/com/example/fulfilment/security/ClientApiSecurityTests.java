@@ -32,13 +32,13 @@ public class ClientApiSecurityTests extends BaseIntegrationSuite {
     addressRepository.save(address);
 
     var merchant = new Merchant();
-    merchant.setId("MT_DE_1");
+    merchant.setId("MT");
     merchant.setAddress(address);
     merchantRepository.save(merchant);
 
     var client = new Client();
-    client.setApiKey("mtde1-key");
-    client.setApiSecret(passwordEncoder.encode("mtde1-secret"));
+    client.setApiKey("mt-key");
+    client.setApiSecret(passwordEncoder.encode("mt-secret"));
     client.setRole("MERCHANT");
     clientRepository.save(client);
 
@@ -48,13 +48,13 @@ public class ClientApiSecurityTests extends BaseIntegrationSuite {
         client.getId());
 
     var warehouse = new Warehouse();
-    warehouse.setId("MT_DE_2");
+    warehouse.setId("WH");
     warehouse.setAddress(address);
     warehouseRepository.save(warehouse);
 
     var client2 = new Client();
-    client2.setApiKey("mtde2-key");
-    client2.setApiSecret(passwordEncoder.encode("mtde2-secret"));
+    client2.setApiKey("wh-key");
+    client2.setApiSecret(passwordEncoder.encode("wh-secret"));
     client2.setRole("WAREHOUSE");
     clientRepository.save(client2);
 
@@ -64,7 +64,7 @@ public class ClientApiSecurityTests extends BaseIntegrationSuite {
         client2.getId());
 
     Product product = new Product();
-    product.setMerchantId("MT_DE_1");
+    product.setMerchantId("MT");
     product.setWarehouseId("warehouse-abc");
     product.setMerchantSku("sku-001");
     product.setItemName("Test Product");
@@ -90,7 +90,7 @@ public class ClientApiSecurityTests extends BaseIntegrationSuite {
   public void fakeCredsToEndpointRejected() throws Exception {
     String encoded =
         Base64.getEncoder()
-            .encodeToString(("mtde1-key" + ":" + "fake-secret").getBytes(StandardCharsets.UTF_8));
+            .encodeToString(("mt-key" + ":" + "fake-secret").getBytes(StandardCharsets.UTF_8));
 
     mockMvc
         .perform(get("/api/merchant/products").header("Authorization", "Basic " + encoded))
@@ -112,7 +112,7 @@ public class ClientApiSecurityTests extends BaseIntegrationSuite {
       throws Exception {
     String encoded =
         Base64.getEncoder()
-            .encodeToString(("mtde2-key" + ":" + "mtde2-secret").getBytes(StandardCharsets.UTF_8));
+            .encodeToString(("wh-key" + ":" + "wh-secret").getBytes(StandardCharsets.UTF_8));
 
     mockMvc
         .perform(get("/api/merchant/products").header("Authorization", "Basic " + encoded))
@@ -125,7 +125,7 @@ public class ClientApiSecurityTests extends BaseIntegrationSuite {
       throws Exception {
     String encoded =
         Base64.getEncoder()
-            .encodeToString(("mtde1-key" + ":" + "mtde1-secret").getBytes(StandardCharsets.UTF_8));
+            .encodeToString(("mt-key" + ":" + "mt-secret").getBytes(StandardCharsets.UTF_8));
 
     mockMvc
         .perform(get("/api/merchant/products").header("Authorization", "Basic " + encoded))
@@ -137,7 +137,7 @@ public class ClientApiSecurityTests extends BaseIntegrationSuite {
                     """
                         [
                             {
-                                "merchantId": "MT_DE_1",
+                                "merchantId": "MT",
                                 "warehouseId": "warehouse-abc",
                                 "merchantSku": "sku-001",
                                 "itemName": "Test Product",

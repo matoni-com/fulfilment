@@ -27,14 +27,17 @@ public class WebUserApiSecurityTests extends BaseIntegrationSuite {
 
   @BeforeAll
   public void populateUsers() {
-    User userWithoutHello2Authority = new User("user1", passwordEncoder.encode("12345"));
-    userWithoutHello2Authority.addAuthority(new Authority("SOME_AUTHORITY"));
+    User userWithWrongAuthority = new User("user1", passwordEncoder.encode("12345"));
+    userWithWrongAuthority.addAuthority(new Authority("SOME_AUTHORITY"));
 
     User userWithHello2Authority = new User("user2", passwordEncoder.encode("23456"));
     userWithHello2Authority.addAuthority(new Authority("HELLO2"));
 
-    userRepository.save(userWithoutHello2Authority);
+    User userWithoutAnyAuthority = new User("user3", passwordEncoder.encode("34567"));
+
+    userRepository.save(userWithWrongAuthority);
     userRepository.save(userWithHello2Authority);
+    userRepository.save(userWithoutAnyAuthority);
   }
 
   @AfterAll
@@ -68,8 +71,8 @@ public class WebUserApiSecurityTests extends BaseIntegrationSuite {
                     .content(
                         """
                         {
-                            "username": "user1",
-                            "password": "12345"
+                            "username": "user3",
+                            "password": "34567"
                         }
                 """))
             .andExpect(status().isOk())
@@ -94,7 +97,8 @@ public class WebUserApiSecurityTests extends BaseIntegrationSuite {
   }
 
   @Test
-  public void authenticatedRequestWithoutAuthorityToAuthorizedEndpointRejected() throws Exception {
+  public void authenticatedRequestWithoutCorrectAuthorityToAuthorizedEndpointRejected()
+      throws Exception {
     var body =
         mockMvc
             .perform(
