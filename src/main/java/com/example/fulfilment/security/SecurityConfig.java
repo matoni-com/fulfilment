@@ -32,18 +32,18 @@ public class SecurityConfig {
     return Jwts.SIG.HS256.key().build();
   }
 
-  @Bean(name = "maggieUsernamePassword")
-  public AuthenticationManager maggieUsernamePasswordAuthManager(
-      BCryptPasswordEncoder passwordEncoder, MaggieUserDetailsService maggieUserDetailsService) {
+  @Bean(name = "webUserUsernamePassword")
+  public AuthenticationManager webUserUsernamePasswordAuthManager(
+      BCryptPasswordEncoder passwordEncoder, WebUserDetailsService webUserDetailsService) {
     DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-    provider.setUserDetailsService(maggieUserDetailsService);
+    provider.setUserDetailsService(webUserDetailsService);
     provider.setPasswordEncoder(passwordEncoder);
 
     return new ProviderManager(provider);
   }
 
   @Bean
-  public SecurityFilterChain maggieSecurityFilterChain(
+  public SecurityFilterChain webUserApiSecurityFilterChain(
       HttpSecurity http, JwtAuthenticationProvider provider) throws Exception {
 
     AuthenticationManager jwtAuthManager = new ProviderManager(provider);

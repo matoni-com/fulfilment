@@ -29,7 +29,7 @@ public class ProductService {
   }
 
   public List<ProductResult> getProductsByMerchantId(String merchantId) {
-    return productRepository.findByMerchantCodeptId(merchantId).stream()
+    return productRepository.findByMerchantId(merchantId).stream()
         .map(productServiceMapper::toResult)
         .collect(Collectors.toList());
   }
@@ -37,14 +37,14 @@ public class ProductService {
   public Optional<ProductResult> getProductByMerchantSkuAndMerchantId(
       String merchantSku, String merchantId) {
     return productRepository
-        .findByMerchantSkuAndMerchantCodeptId(merchantSku, merchantId)
+        .findByMerchantSkuAndMerchantId(merchantSku, merchantId)
         .map(productServiceMapper::toResult);
   }
 
   public void deactivateProduct(String merchantSku, String merchantId) {
     Product product =
         productRepository
-            .findByMerchantSkuAndMerchantCodeptId(merchantSku, merchantId)
+            .findByMerchantSkuAndMerchantId(merchantSku, merchantId)
             .orElseThrow(
                 () ->
                     new EntityNotFoundException(

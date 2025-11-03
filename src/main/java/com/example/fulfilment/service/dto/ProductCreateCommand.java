@@ -6,8 +6,8 @@ import lombok.Value;
 @Value
 @Builder
 public class ProductCreateCommand {
-  String merchantCodeptId;
-  String warehouseCodeptId;
+  String merchantId;
+  String warehouseId;
   String merchantSku;
   String manufacturerSku;
   String manufacturerName;

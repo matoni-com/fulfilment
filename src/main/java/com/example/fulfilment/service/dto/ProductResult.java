@@ -8,8 +8,8 @@ import lombok.Value;
 @Builder
 public class ProductResult {
   Long id;
-  String merchantCodeptId;
-  String warehouseCodeptId;
+  String merchantId;
+  String warehouseId;
   String merchantSku;
   String manufacturerSku;
   String manufacturerName;

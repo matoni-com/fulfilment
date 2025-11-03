@@ -17,8 +17,8 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
   private static final String TOKEN_TYPE = "Bearer";
 
   @Autowired
-  @Qualifier("maggieUsernamePassword")
-  private AuthenticationManager maggieAuthManager;
+  @Qualifier("webUserUsernamePassword")
+  private AuthenticationManager webUserAuthManager;
 
   @Autowired private JwtProvider jwtProvider;
 
@@ -27,7 +27,7 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
         new UsernamePasswordAuthenticationToken(
             authenticateUserCommand.getUsername(), authenticateUserCommand.getPassword());
 
-    Authentication authenticated = maggieAuthManager.authenticate(auth);
+    Authentication authenticated = webUserAuthManager.authenticate(auth);
 
     String jwt = jwtProvider.createToken(authenticated, (long) EXPIRATION_PERIOD_IN_SECONDS * 1000);
 

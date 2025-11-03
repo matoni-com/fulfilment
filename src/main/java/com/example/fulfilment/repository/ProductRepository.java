@@ -6,8 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
-  List<Product> findByMerchantCodeptId(String merchantCodeptId);
+  List<Product> findByMerchantId(String merchantId);
 
-  Optional<Product> findByMerchantSkuAndMerchantCodeptId(
-      String merchantSku, String merchantCodeptId);
+  Optional<Product> findByMerchantSkuAndMerchantId(String merchantSku, String merchantId);
 }

@@ -8,8 +8,8 @@ import lombok.Data;
 @Data
 public class ProductCreateRequest {
 
-  @NotBlank(message = "Warehouse Codept ID is required")
-  private String warehouseCodeptId;
+  @NotBlank(message = "Warehouse ID is required")
+  private String warehouseId;
 
   @NotBlank(message = "Merchant SKU is required")
   @Size(max = 50, message = "Merchant SKU must not exceed 50 characters")

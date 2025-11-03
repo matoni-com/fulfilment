@@ -17,10 +17,10 @@ public class Product {
   private Long id;
 
   @Column(nullable = false)
-  private String merchantCodeptId;
+  private String merchantId;
 
   @Column(nullable = false)
-  private String warehouseCodeptId;
+  private String warehouseId;
 
   @Column(nullable = false)
   private String merchantSku;

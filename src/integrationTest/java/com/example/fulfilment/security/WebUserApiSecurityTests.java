@@ -17,7 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
-public class MaggieJwtSecurityTests extends BaseIntegrationSuite {
+public class WebUserApiSecurityTests extends BaseIntegrationSuite {
 
   @Autowired private UserRepository userRepository;
 
