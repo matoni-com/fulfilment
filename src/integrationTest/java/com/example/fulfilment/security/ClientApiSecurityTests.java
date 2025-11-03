@@ -94,13 +94,17 @@ public class ClientApiSecurityTests extends BaseIntegrationSuite {
 
     mockMvc
         .perform(get("/api/merchant/products").header("Authorization", "Basic " + encoded))
-        .andExpect(status().isUnauthorized());
+        .andExpect(status().isUnauthorized())
+        .andExpect(content().string("Invalid or missing API key/secret"));
   }
 
   @Test
   public void unauthenticatedRequestToAuthenticatedEndpointRejected() throws Exception {
 
-    mockMvc.perform(get("/api/merchant/products")).andExpect(status().isUnauthorized());
+    mockMvc
+        .perform(get("/api/merchant/products"))
+        .andExpect(status().isUnauthorized())
+        .andExpect(content().string("Invalid or missing API key/secret"));
   }
 
   @Test
@@ -112,7 +116,8 @@ public class ClientApiSecurityTests extends BaseIntegrationSuite {
 
     mockMvc
         .perform(get("/api/merchant/products").header("Authorization", "Basic " + encoded))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isForbidden())
+        .andExpect(content().string("Access denied"));
   }
 
   @Test
@@ -125,6 +130,7 @@ public class ClientApiSecurityTests extends BaseIntegrationSuite {
     mockMvc
         .perform(get("/api/merchant/products").header("Authorization", "Basic " + encoded))
         .andExpect(status().isOk())
+        // this check makes sure that the request attribute merchantId is populated correctly
         .andExpect(
             content()
                 .json(
