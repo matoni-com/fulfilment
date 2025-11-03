@@ -22,11 +22,12 @@ public class User {
   private String username;
 
   @NonNull
-  @Column(name = "password")
+  @Column(name = "password", nullable = false)
   private String password;
 
   @OneToMany(
       mappedBy = "user",
+      fetch = FetchType.EAGER,
       cascade = CascadeType.ALL) // cascade added so that saving user also saves authorities
   private List<Authority> authorities = new ArrayList<>(0);
 

@@ -27,19 +27,27 @@ public class MaggieJwtSecurityTests extends BaseIntegrationSuite {
 
   @BeforeAll
   public void populateUsers() {
-    User userWithoutReadProduct = new User("user1", passwordEncoder.encode("12345"));
-    userWithoutReadProduct.addAuthority(new Authority("SOME_AUTHORITY"));
+    User userWithoutHello2Authority = new User("user1", passwordEncoder.encode("12345"));
+    userWithoutHello2Authority.addAuthority(new Authority("SOME_AUTHORITY"));
 
-    User userWithReadProduct = new User("user2", passwordEncoder.encode("23456"));
-    userWithReadProduct.addAuthority(new Authority("READ_PRODUCT"));
+    User userWithHello2Authority = new User("user2", passwordEncoder.encode("23456"));
+    userWithHello2Authority.addAuthority(new Authority("HELLO2"));
 
-    userRepository.save(userWithoutReadProduct);
-    userRepository.save(userWithReadProduct);
+    userRepository.save(userWithoutHello2Authority);
+    userRepository.save(userWithHello2Authority);
   }
 
   @AfterAll
   public void cleanUsers() {
     userRepository.deleteAll();
+  }
+
+  @Test
+  public void fakeTokenToEndpointRejected() throws Exception {
+    mockMvc
+        .perform(get("/hello").header("Authorization", "Bearer fakeToken"))
+        .andExpect(status().isUnauthorized())
+        .andExpect(content().string("Invalid or missing token"));
   }
 
   @Test
@@ -80,7 +88,7 @@ public class MaggieJwtSecurityTests extends BaseIntegrationSuite {
   @Test
   public void unauthenticatedRequestToAuthorizedEndpointRejected() throws Exception {
     mockMvc
-        .perform(get("/products"))
+        .perform(get("/hello2"))
         .andExpect(status().isUnauthorized())
         .andExpect(content().string("Invalid or missing token"));
   }
@@ -107,7 +115,7 @@ public class MaggieJwtSecurityTests extends BaseIntegrationSuite {
     String token = read(body, "$.access_token");
 
     mockMvc
-        .perform(get("/products").header("Authorization", "Bearer " + token))
+        .perform(get("/hello2").header("Authorization", "Bearer " + token))
         .andExpect(status().isForbidden())
         .andExpect(content().string("Access denied"));
   }
@@ -134,8 +142,8 @@ public class MaggieJwtSecurityTests extends BaseIntegrationSuite {
     String token = read(body, "$.access_token");
 
     mockMvc
-        .perform(get("/products").header("Authorization", "Bearer " + token))
+        .perform(get("/hello2").header("Authorization", "Bearer " + token))
         .andExpect(status().isOk())
-        .andExpect(content().json("[]"));
+        .andExpect(content().string("Hello World!"));
   }
 }

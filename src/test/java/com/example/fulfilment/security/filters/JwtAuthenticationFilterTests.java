@@ -39,7 +39,7 @@ public class JwtAuthenticationFilterTests {
     when(authenticationManager.authenticate(new JwtAuthenticationToken("some_token")))
         .thenReturn(new JwtAuthenticationToken("some_user", "some_token", null));
 
-    filter.doFilterInternal(request, response, chain);
+    filter.doFilter(request, response, chain);
 
     // delegates token verification to authenticationManager
     verify(authenticationManager, times(1)).authenticate(new JwtAuthenticationToken("some_token"));

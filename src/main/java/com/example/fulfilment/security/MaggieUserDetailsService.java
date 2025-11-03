@@ -3,7 +3,6 @@ package com.example.fulfilment.security;
 import com.example.fulfilment.entity.Authority;
 import com.example.fulfilment.entity.User;
 import com.example.fulfilment.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,7 +15,6 @@ public class MaggieUserDetailsService implements UserDetailsService {
 
   private UserRepository userRepository;
 
-  @Transactional
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     User user =

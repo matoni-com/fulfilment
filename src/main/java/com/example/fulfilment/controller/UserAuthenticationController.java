@@ -8,6 +8,7 @@ import com.example.fulfilment.service.dto.AuthenticateUserResult;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,7 @@ public class UserAuthenticationController {
   private AuthenticateUserMapper authenticateUserMapper;
   private UserAuthenticationService service;
 
+  @PreAuthorize("permitAll()")
   @PostMapping("/authenticate")
   public ResponseEntity<AuthenticateUserResponse> authenticate(
       @RequestBody AuthenticateUserRequest request) {

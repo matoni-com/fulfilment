@@ -10,7 +10,7 @@ import com.example.fulfilment.controller.dto.ProductCreateRequest;
 import com.example.fulfilment.entity.Product;
 import com.example.fulfilment.repository.ProductRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -25,16 +25,15 @@ class ProductControllerTests extends BaseIntegrationSuite {
 
   @Autowired private ObjectMapper objectMapper;
 
-  @BeforeEach
+  @AfterEach
   void cleanDatabase() {
     productRepository.deleteAll();
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = {"MERCHANT"})
   void createProduct_shouldPersistProductToDatabase() throws Exception {
     ProductCreateRequest product = new ProductCreateRequest();
-    product.setMerchantCodeptId("merchant1");
     product.setWarehouseCodeptId("warehouse1");
     product.setMerchantSku("sku123");
     product.setManufacturerSku("mSku123");
@@ -45,12 +44,13 @@ class ProductControllerTests extends BaseIntegrationSuite {
 
     mockMvc
         .perform(
-            post("/products")
+            post("/api/merchant/products")
+                .requestAttr("merchantId", "merchant1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(product)))
         .andExpect(status().isOk());
 
-    assertThat(productRepository.findByMerchantSku("sku123"))
+    assertThat(productRepository.findByMerchantSkuAndMerchantCodeptId("sku123", "merchant1"))
         .isPresent()
         .get()
         .satisfies(
@@ -61,7 +61,7 @@ class ProductControllerTests extends BaseIntegrationSuite {
   }
 
   @Test
-  @WithMockUser(authorities = {"READ_PRODUCT"})
+  @WithMockUser(roles = {"MERCHANT"})
   void getAllProducts_shouldReturnSavedProducts() throws Exception {
     // given
     Product product = new Product();
@@ -75,7 +75,7 @@ class ProductControllerTests extends BaseIntegrationSuite {
 
     // when + then
     mockMvc
-        .perform(get("/products"))
+        .perform(get("/api/merchant/products").requestAttr("merchantId", "merchant-xyz"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$[0].merchantCodeptId").value("merchant-xyz"))
@@ -84,8 +84,8 @@ class ProductControllerTests extends BaseIntegrationSuite {
   }
 
   @Test
-  @WithMockUser(authorities = {"READ_PRODUCT"})
-  void getProductById_shouldReturnProductResponse() throws Exception {
+  @WithMockUser(roles = {"MERCHANT"})
+  void getProductByMerchantSku_shouldReturnProductResponse() throws Exception {
     // given
     Product product = new Product();
     product.setMerchantCodeptId("merchant-123");
@@ -98,7 +98,9 @@ class ProductControllerTests extends BaseIntegrationSuite {
 
     // when + then
     mockMvc
-        .perform(get("/products/" + savedProduct.getId()))
+        .perform(
+            get("/api/merchant/products/" + savedProduct.getMerchantSku())
+                .requestAttr("merchantId", "merchant-123"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.merchantCodeptId").value("merchant-123"))
@@ -107,11 +109,11 @@ class ProductControllerTests extends BaseIntegrationSuite {
   }
 
   @Test
-  @WithMockUser(authorities = {"READ_PRODUCT"})
+  @WithMockUser(roles = {"MERCHANT"})
   void getAllProducts_shouldReturnEmptyListWhenNoProductsExist() throws Exception {
     // when + then
     mockMvc
-        .perform(get("/products"))
+        .perform(get("/api/merchant/products").requestAttr("merchantId", "merchant-123"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$").isArray())
@@ -119,18 +121,18 @@ class ProductControllerTests extends BaseIntegrationSuite {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = {"MERCHANT"})
   void createProduct_shouldReturnBadRequestWhenMandatoryFieldsAreMissing() throws Exception {
     ProductCreateRequest product = new ProductCreateRequest();
     // Leaving all fields empty to trigger validation errors
 
     mockMvc
         .perform(
-            post("/products")
+            post("/api/merchant/products")
+                .requestAttr("merchantId", "merchant-123")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(product)))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.merchantCodeptId").value("Merchant Codept ID is required"))
         .andExpect(jsonPath("$.warehouseCodeptId").value("Warehouse Codept ID is required"))
         .andExpect(jsonPath("$.merchantSku").value("Merchant SKU is required"))
         .andExpect(jsonPath("$.manufacturerSku").value("Manufacturer SKU is required"))
@@ -140,10 +142,9 @@ class ProductControllerTests extends BaseIntegrationSuite {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = {"MERCHANT"})
   void createProduct_shouldReturnBadRequestWhenEanIsInvalid() throws Exception {
     ProductCreateRequest product = new ProductCreateRequest();
-    product.setMerchantCodeptId("merchant1");
     product.setWarehouseCodeptId("warehouse1");
     product.setMerchantSku("sku123");
     product.setManufacturerSku("mSku123");
@@ -153,7 +154,8 @@ class ProductControllerTests extends BaseIntegrationSuite {
 
     mockMvc
         .perform(
-            post("/products")
+            post("/api/merchant/products")
+                .requestAttr("merchantId", "merchant1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(product)))
         .andExpect(status().isBadRequest())
@@ -161,10 +163,9 @@ class ProductControllerTests extends BaseIntegrationSuite {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = {"MERCHANT"})
   void createProduct_shouldReturnBadRequestWhenFieldExceedsMaxLength() throws Exception {
     ProductCreateRequest product = new ProductCreateRequest();
-    product.setMerchantCodeptId("merchant1");
     product.setWarehouseCodeptId("warehouse1");
     product.setMerchantSku("a".repeat(51)); // Exceeds max length of 50
     product.setManufacturerSku("mSku123");
@@ -174,7 +175,8 @@ class ProductControllerTests extends BaseIntegrationSuite {
 
     mockMvc
         .perform(
-            post("/products")
+            post("/api/merchant/products")
+                .requestAttr("merchantId", "merchant1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(product)))
         .andExpect(status().isBadRequest())
@@ -182,7 +184,7 @@ class ProductControllerTests extends BaseIntegrationSuite {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = {"MERCHANT"})
   void deactivateProduct_shouldSetIsActiveToFalse() throws Exception {
     // given
     Product product = new Product();
@@ -196,7 +198,9 @@ class ProductControllerTests extends BaseIntegrationSuite {
 
     // when
     mockMvc
-        .perform(patch("/products/" + savedProduct.getId() + "/deactivate"))
+        .perform(
+            patch("/api/merchant/products/" + savedProduct.getMerchantSku() + "/deactivate")
+                .requestAttr("merchantId", "merchant-123"))
         .andExpect(status().isNoContent());
 
     // then

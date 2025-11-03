@@ -28,21 +28,30 @@ public class ProductService {
     return productServiceMapper.toResult(savedProduct);
   }
 
-  public List<ProductResult> getAllProducts() {
-    return productRepository.findAll().stream()
+  public List<ProductResult> getProductsByMerchantId(String merchantId) {
+    return productRepository.findByMerchantCodeptId(merchantId).stream()
         .map(productServiceMapper::toResult)
         .collect(Collectors.toList());
   }
 
-  public Optional<ProductResult> getProductById(Long id) {
-    return productRepository.findById(id).map(productServiceMapper::toResult);
+  public Optional<ProductResult> getProductByMerchantSkuAndMerchantId(
+      String merchantSku, String merchantId) {
+    return productRepository
+        .findByMerchantSkuAndMerchantCodeptId(merchantSku, merchantId)
+        .map(productServiceMapper::toResult);
   }
 
-  public void deactivateProduct(Long id) {
+  public void deactivateProduct(String merchantSku, String merchantId) {
     Product product =
         productRepository
-            .findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id));
+            .findByMerchantSkuAndMerchantCodeptId(merchantSku, merchantId)
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException(
+                        "Product not found with merchantSku: "
+                            + merchantSku
+                            + " and merchantId: "
+                            + merchantId));
     product.setIsActive(false);
     productRepository.save(product);
   }

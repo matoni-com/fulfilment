@@ -6,26 +6,25 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-@Component
+/*Filters should not be beans, because in that case they are automatically started as a servlet filter by Spring
+in addition to being explicitly started as a part of the security filter chain. This would lead to issues like the
+filter being executed for endpoints that it was not explicitly registered for or being executed twice for endpoints
+that it was registered for.*/
+@AllArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  @Autowired
-  @Qualifier("maggieJwt")
   private AuthenticationManager authManager;
 
   @Override
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
-
     String header = request.getHeader("Authorization");
 
     if (header == null || !header.startsWith("Bearer ")) {
