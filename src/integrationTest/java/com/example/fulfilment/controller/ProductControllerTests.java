@@ -7,14 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.example.fulfilment.common.BaseIntegrationSuite;
 import com.example.fulfilment.controller.dto.ProductCreateRequest;
-import com.example.fulfilment.entity.Address;
-import com.example.fulfilment.entity.Merchant;
 import com.example.fulfilment.entity.Product;
-import com.example.fulfilment.entity.Warehouse;
-import com.example.fulfilment.repository.AddressRepository;
-import com.example.fulfilment.repository.MerchantRepository;
 import com.example.fulfilment.repository.ProductRepository;
-import com.example.fulfilment.repository.WarehouseRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,38 +21,12 @@ class ProductControllerTests extends BaseIntegrationSuite {
   @Autowired private MockMvc mockMvc;
 
   @Autowired private ProductRepository productRepository;
-  @Autowired private AddressRepository addressRepository;
-  @Autowired private MerchantRepository merchantRepository;
-  @Autowired private WarehouseRepository warehouseRepository;
 
   @Autowired private ObjectMapper objectMapper;
-
-  @BeforeAll
-  void populateMerchantAndWarehouse() {
-    var address = new Address("street", "city", "state", "zip", "country");
-    addressRepository.save(address);
-
-    var merchant = new Merchant();
-    merchant.setId("MT");
-    merchant.setAddress(address);
-    merchantRepository.save(merchant);
-
-    var warehouse = new Warehouse();
-    warehouse.setId("WH");
-    warehouse.setAddress(address);
-    warehouseRepository.save(warehouse);
-  }
 
   @AfterEach
   void cleanProducts() {
     productRepository.deleteAll();
-  }
-
-  @AfterAll
-  void cleanMerchantAndWarehouse() {
-    warehouseRepository.deleteAll();
-    merchantRepository.deleteAll();
-    addressRepository.deleteAll();
   }
 
   @Test

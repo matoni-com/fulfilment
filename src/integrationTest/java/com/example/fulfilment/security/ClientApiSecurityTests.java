@@ -18,9 +18,6 @@ import org.springframework.test.web.servlet.MockMvc;
 public class ClientApiSecurityTests extends BaseIntegrationSuite {
 
   @Autowired private ClientRepository clientRepository;
-  @Autowired private AddressRepository addressRepository;
-  @Autowired private MerchantRepository merchantRepository;
-  @Autowired private WarehouseRepository warehouseRepository;
   @Autowired private BCryptPasswordEncoder passwordEncoder;
   @Autowired private ProductRepository productRepository;
   @Autowired private MockMvc mockMvc;
@@ -28,13 +25,6 @@ public class ClientApiSecurityTests extends BaseIntegrationSuite {
 
   @BeforeAll
   public void populateDatabase() {
-    var address = new Address("street", "city", "state", "zip", "country");
-    addressRepository.save(address);
-
-    var merchant = new Merchant();
-    merchant.setId("MT");
-    merchant.setAddress(address);
-    merchantRepository.save(merchant);
 
     var client = new Client();
     client.setApiKey("mt-key");
@@ -44,13 +34,8 @@ public class ClientApiSecurityTests extends BaseIntegrationSuite {
 
     jdbcTemplate.update(
         "INSERT INTO merchants_clients (merchant_id, client_id) VALUES (?, ?)",
-        merchant.getId(),
+        "MT",
         client.getId());
-
-    var warehouse = new Warehouse();
-    warehouse.setId("WH");
-    warehouse.setAddress(address);
-    warehouseRepository.save(warehouse);
 
     var client2 = new Client();
     client2.setApiKey("wh-key");
@@ -60,7 +45,7 @@ public class ClientApiSecurityTests extends BaseIntegrationSuite {
 
     jdbcTemplate.update(
         "INSERT INTO warehouses_clients (warehouse_id, client_id) VALUES (?, ?)",
-        warehouse.getId(),
+        "WH",
         client2.getId());
 
     Product product = new Product();
@@ -80,10 +65,7 @@ public class ClientApiSecurityTests extends BaseIntegrationSuite {
     jdbcTemplate.update("DELETE FROM merchants_clients");
     jdbcTemplate.update("DELETE FROM warehouses_clients");
 
-    warehouseRepository.deleteAll();
-    merchantRepository.deleteAll();
     clientRepository.deleteAll();
-    addressRepository.deleteAll();
   }
 
   @Test
