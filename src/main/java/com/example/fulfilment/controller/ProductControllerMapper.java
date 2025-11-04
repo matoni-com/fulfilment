@@ -10,7 +10,7 @@ import org.mapstruct.MappingConstants;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ProductControllerMapper {
-  @Mapping(target = "merchantCodeptId", source = "merchantId")
+  @Mapping(target = "merchantId", source = "merchantId")
   ProductCreateCommand toCommand(ProductCreateRequest request, String merchantId);
 
   ProductResponse fromProductResult(ProductResult result);

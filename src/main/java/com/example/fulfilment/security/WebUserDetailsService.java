@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
-public class MaggieUserDetailsService implements UserDetailsService {
+public class WebUserDetailsService implements UserDetailsService {
 
   private UserRepository userRepository;
 

@@ -1,0 +1,2 @@
+ALTER TABLE products ADD CONSTRAINT fk_products_merchants FOREIGN KEY (merchant_id) REFERENCES merchants(id);
+ALTER TABLE products ADD CONSTRAINT fk_products_warehouses FOREIGN KEY (warehouse_id) REFERENCES warehouses(id);

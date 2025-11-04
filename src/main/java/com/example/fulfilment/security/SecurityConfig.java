@@ -32,18 +32,18 @@ public class SecurityConfig {
     return Jwts.SIG.HS256.key().build();
   }
 
-  @Bean(name = "maggieUsernamePassword")
-  public AuthenticationManager maggieUsernamePasswordAuthManager(
-      BCryptPasswordEncoder passwordEncoder, MaggieUserDetailsService maggieUserDetailsService) {
+  @Bean(name = "webUserUsernamePassword")
+  public AuthenticationManager webUserUsernamePasswordAuthManager(
+      BCryptPasswordEncoder passwordEncoder, WebUserDetailsService webUserDetailsService) {
     DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-    provider.setUserDetailsService(maggieUserDetailsService);
+    provider.setUserDetailsService(webUserDetailsService);
     provider.setPasswordEncoder(passwordEncoder);
 
     return new ProviderManager(provider);
   }
 
   @Bean
-  public SecurityFilterChain maggieSecurityFilterChain(
+  public SecurityFilterChain webUserApiSecurityFilterChain(
       HttpSecurity http, JwtAuthenticationProvider provider) throws Exception {
 
     AuthenticationManager jwtAuthManager = new ProviderManager(provider);
@@ -86,6 +86,9 @@ public class SecurityConfig {
         new MerchantAndWarehouseRequestAttributePopulator(
             merchantClientRepository, warehouseClientRepository);
 
+    RestAuthenticationEntryPoint authenticationEntryPoint =
+        new RestAuthenticationEntryPoint("Invalid or missing API key/secret");
+
     return http.securityMatcher("/api/**")
         .authorizeHttpRequests(
             authorizeRequests ->
@@ -97,12 +100,17 @@ public class SecurityConfig {
                     .anyRequest()
                     .denyAll())
         .authenticationManager(clientApiAuthManager)
-        .httpBasic(httpBasic -> {})
+        /* BasicAuthenticationFilter handles authentication failures internally using its own AuthenticationEntryPoint,
+        rather than delegating to the global exception handling configured below. In other words it does not bubble up
+        exceptions through the call stack. Therefore, we must explicitly set the same custom entry point here to ensure
+        consistent error responses. In case of invalid creds it throw an AuthenticationException itself, and in case
+        Basic header is missing it delegates to the AuthorizationFilter that can then throw an AuthenticationException
+        if the endpoint requires authentication. This behaviour is similar to our custom JwtAuthenticationFilter.*/
+        .httpBasic(httpBasic -> httpBasic.authenticationEntryPoint(authenticationEntryPoint))
         .addFilterAfter(attributePopulator, BasicAuthenticationFilter.class)
         .exceptionHandling(
             eh ->
-                eh.authenticationEntryPoint(
-                        new RestAuthenticationEntryPoint("Invalid or missing API key/secret"))
+                eh.authenticationEntryPoint(authenticationEntryPoint)
                     .accessDeniedHandler(new RestAccessDeniedHandler("Access denied")))
         .sessionManagement(
             sessionManagement ->
