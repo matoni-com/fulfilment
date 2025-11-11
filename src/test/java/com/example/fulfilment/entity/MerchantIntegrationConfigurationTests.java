@@ -21,7 +21,7 @@ class MerchantIntegrationConfigurationTests {
     assertEquals("config-1", config.getId());
     assertEquals(merchant, config.getMerchant());
     assertNotNull(config.getApiKeyConnection());
-    assertEquals("secret123", config.getApiKeyConnection().getApiSecret());
+    assertEquals("secret123", config.getApiKeyConnection().getApiKey());
     assertEquals("https://api.example.com", config.getApiKeyConnection().getUrl());
   }
 

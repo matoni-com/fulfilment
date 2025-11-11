@@ -12,7 +12,7 @@ class ConnectionSettingsTests {
   void apiKeyConnection_shouldStoreApiSecretAndUrl() {
     ApiKeyConnection connection = new ApiKeyConnection("secret123", "https://api.example.com");
 
-    assertEquals("secret123", connection.getApiSecret());
+    assertEquals("secret123", connection.getApiKey());
     assertEquals("https://api.example.com", connection.getUrl());
   }
 
@@ -71,7 +71,7 @@ class ConnectionSettingsTests {
   private String processConnection(ConnectionSettings settings) {
     return switch (settings) {
       case ApiKeyConnection conn ->
-          "API Key: " + conn.getApiSecret() + " -> " + conn.getUrl();
+          "API Key: " + conn.getApiKey() + " -> " + conn.getUrl();
       case UsernamePasswordConnection conn ->
           "Username/Password: " + conn.getUsername() + " -> " + conn.getUrl();
       case FtpConnection conn ->

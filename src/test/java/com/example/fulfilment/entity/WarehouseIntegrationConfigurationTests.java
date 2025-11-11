@@ -21,7 +21,7 @@ class WarehouseIntegrationConfigurationTests {
     assertEquals("config-1", config.getId());
     assertEquals(warehouse, config.getWarehouse());
     assertNotNull(config.getApiKeyConnection());
-    assertEquals("secret123", config.getApiKeyConnection().getApiSecret());
+    assertEquals("secret123", config.getApiKeyConnection().getApiKey());
     assertEquals("https://api.example.com", config.getApiKeyConnection().getUrl());
   }
 

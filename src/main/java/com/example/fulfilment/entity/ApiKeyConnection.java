@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public final class ApiKeyConnection extends ConnectionSettings {
-  private String apiSecret;
+  private String apiKey;
   private String url;
 }
 

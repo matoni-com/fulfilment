@@ -68,7 +68,7 @@ class ConnectionSettingsPatternMatchingTests {
   private String extractConnectionInfo(ConnectionSettings settings) {
     return switch (settings) {
       case ApiKeyConnection conn -> {
-        if (conn.getApiSecret() == null || conn.getApiSecret().isEmpty()) {
+        if (conn.getApiKey() == null || conn.getApiKey().isEmpty()) {
           yield "Invalid API Key connection: missing secret";
         }
         yield "API Key connection to " + conn.getUrl();
@@ -85,7 +85,7 @@ class ConnectionSettingsPatternMatchingTests {
   private boolean isValid(ConnectionSettings settings) {
     return switch (settings) {
       case ApiKeyConnection conn ->
-          conn.getApiSecret() != null && !conn.getApiSecret().isEmpty() && conn.getUrl() != null;
+          conn.getApiKey() != null && !conn.getApiKey().isEmpty() && conn.getUrl() != null;
       case UsernamePasswordConnection conn ->
           conn.getUsername() != null
               && !conn.getUsername().isEmpty()
