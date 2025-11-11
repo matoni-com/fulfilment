@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Connection settings for API key authentication: apiSecret and url
+ * Connection settings for API key authentication: apiKey and url
  */
 @Getter
 @Setter
