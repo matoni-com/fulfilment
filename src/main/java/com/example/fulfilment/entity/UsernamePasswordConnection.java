@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public final class UsernamePasswordConnection extends ConnectionSettings {
+public final class UsernamePasswordConnection implements ConnectionSettings {
   private String username;
   private String password;
   private String url;

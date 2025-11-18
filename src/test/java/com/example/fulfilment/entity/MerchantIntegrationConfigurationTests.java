@@ -20,9 +20,17 @@ class MerchantIntegrationConfigurationTests {
 
     assertEquals("config-1", config.getId());
     assertEquals(merchant, config.getMerchant());
-    assertNotNull(config.getApiKeyConnection());
-    assertEquals("secret123", config.getApiKeyConnection().getApiKey());
-    assertEquals("https://api.example.com", config.getApiKeyConnection().getUrl());
+
+    ConnectionSettings settings = config.getConnectionSettings();
+    assertNotNull(settings);
+
+    switch (settings) {
+      case ApiKeyConnection api -> {
+        assertEquals("secret123", api.getApiKey());
+        assertEquals("https://api.example.com", api.getUrl());
+      }
+      default -> fail("Expected ApiKeyConnection but got: " + settings.getClass().getSimpleName());
+    }
   }
 
   @Test
@@ -36,10 +44,17 @@ class MerchantIntegrationConfigurationTests {
     config.setMerchant(merchant);
     config.setUsernamePasswordConnection("user1", "pass123", "https://api.example.com");
 
-    assertNotNull(config.getUsernamePasswordConnection());
-    assertEquals("user1", config.getUsernamePasswordConnection().getUsername());
-    assertEquals("pass123", config.getUsernamePasswordConnection().getPassword());
-    assertEquals("https://api.example.com", config.getUsernamePasswordConnection().getUrl());
+    ConnectionSettings settings = config.getConnectionSettings();
+    assertNotNull(settings);
+
+    switch (settings) {
+      case UsernamePasswordConnection up -> {
+        assertEquals("user1", up.getUsername());
+        assertEquals("pass123", up.getPassword());
+        assertEquals("https://api.example.com", up.getUrl());
+      }
+      default -> fail("Expected UsernamePasswordConnection but got: " + settings.getClass().getSimpleName());
+    }
   }
 
   @Test
@@ -53,26 +68,18 @@ class MerchantIntegrationConfigurationTests {
     config.setMerchant(merchant);
     config.setFtpConnection("ftp.example.com", "ftpuser", "ftppass", 21);
 
-    assertNotNull(config.getFtpConnection());
-    assertEquals("ftp.example.com", config.getFtpConnection().getHost());
-    assertEquals("ftpuser", config.getFtpConnection().getUsername());
-    assertEquals("ftppass", config.getFtpConnection().getPassword());
-    assertEquals(21, config.getFtpConnection().getPort());
-  }
+    ConnectionSettings settings = config.getConnectionSettings();
+    assertNotNull(settings);
 
-  @Test
-  @DisplayName("Should return null for wrong connection type when using getter methods")
-  void shouldReturnNullForWrongConnectionType() {
-    Merchant merchant = new Merchant();
-    merchant.setId("merchant-1");
-
-    MerchantIntegrationConfiguration config = new MerchantIntegrationConfiguration();
-    config.setId("config-1");
-    config.setMerchant(merchant);
-    config.setApiKeyConnection("secret", "https://api.example.com");
-
-    assertNull(config.getUsernamePasswordConnection());
-    assertNull(config.getFtpConnection());
+    switch (settings) {
+      case FtpConnection ftp -> {
+        assertEquals("ftp.example.com", ftp.getHost());
+        assertEquals("ftpuser", ftp.getUsername());
+        assertEquals("ftppass", ftp.getPassword());
+        assertEquals(21, ftp.getPort());
+      }
+      default -> fail("Expected FtpConnection but got: " + settings.getClass().getSimpleName());
+    }
   }
 
   @Test
@@ -92,13 +99,15 @@ class MerchantIntegrationConfigurationTests {
   }
 
   private String processConnectionSettings(ConnectionSettings settings) {
+    if (settings == null) {
+      return "No connection";
+    }
+
+    // No default branch needed because ConnectionSettings is sealed
     return switch (settings) {
       case ApiKeyConnection ignored -> "API Key connection";
       case UsernamePasswordConnection ignored -> "Username/Password connection";
       case FtpConnection ignored -> "FTP connection";
-      case null -> "No connection";
-        default -> throw new IllegalStateException("Unexpected value: " + settings);
     };
   }
 }
-

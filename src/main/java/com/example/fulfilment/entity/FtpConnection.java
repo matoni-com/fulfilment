@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public final class FtpConnection extends ConnectionSettings {
+public final class FtpConnection implements ConnectionSettings {
   private String host;
   private String username;
   private String password;
