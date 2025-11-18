@@ -25,7 +25,7 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
   public AuthenticateUserResult authenticate(AuthenticateUserCommand authenticateUserCommand) {
     Authentication auth =
         new UsernamePasswordAuthenticationToken(
-            authenticateUserCommand.getUsername(), authenticateUserCommand.getPassword());
+            authenticateUserCommand.username(), authenticateUserCommand.password());
 
     Authentication authenticated = webUserAuthManager.authenticate(auth);
 
