@@ -1,21 +1,3 @@
 package com.example.fulfilment.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-/**
- * Connection settings for FTP authentication: host, username, password, and port
- */
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public final class FtpConnection implements ConnectionSettings {
-  private String host;
-  private String username;
-  private String password;
-  private Integer port;
-}
-
+public record FtpConnection( String host, String username, String password, Integer port) implements ConnectionSettings {}
