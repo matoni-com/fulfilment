@@ -22,7 +22,7 @@ public class WarehouseFlow {
 
   @Id
   @Column(name = "id")
-  private String id;
+  private Long id;
 
   @ManyToOne
   @JoinColumn(name = "warehouse_integration_configuration_id", nullable = false)
@@ -56,5 +56,3 @@ public class WarehouseFlow {
   @Column(name = "notes")
   private String notes;
 }
-
-

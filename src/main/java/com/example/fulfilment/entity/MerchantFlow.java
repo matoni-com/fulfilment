@@ -22,7 +22,7 @@ public class MerchantFlow {
 
   @Id
   @Column(name = "id")
-  private String id;
+  private Long id;
 
   @ManyToOne
   @JoinColumn(name = "merchant_integration_configuration_id", nullable = false)
@@ -56,5 +56,3 @@ public class MerchantFlow {
   @Column(name = "notes")
   private String notes;
 }
-
-

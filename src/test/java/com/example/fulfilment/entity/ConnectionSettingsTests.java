@@ -17,8 +17,7 @@ class ConnectionSettingsTests {
   @Test
   @DisplayName("ApiKeyConnection should serialize and deserialize as polymorphic JSON")
   void apiKeyConnection_shouldSerializeAndDeserializePolymorphicJson() throws Exception {
-    ConnectionSettings original =
-            new ApiKeyConnection("secret123", "https://api.example.com");
+    ConnectionSettings original = new ApiKeyConnection("secret123", "https://api.example.com");
 
     String json = objectMapper.writeValueAsString(original);
 
@@ -27,8 +26,7 @@ class ConnectionSettingsTests {
     assertTrue(json.contains("\"apiKey\":\"secret123\""));
     assertTrue(json.contains("\"url\":\"https://api.example.com\""));
 
-    ConnectionSettings deserialized =
-            objectMapper.readValue(json, ConnectionSettings.class);
+    ConnectionSettings deserialized = objectMapper.readValue(json, ConnectionSettings.class);
 
     assertInstanceOf(ApiKeyConnection.class, deserialized);
     ApiKeyConnection conn = (ApiKeyConnection) deserialized;
@@ -40,7 +38,7 @@ class ConnectionSettingsTests {
   @DisplayName("UsernamePasswordConnection should serialize and deserialize as polymorphic JSON")
   void usernamePasswordConnection_shouldSerializeAndDeserializePolymorphicJson() throws Exception {
     ConnectionSettings original =
-            new UsernamePasswordConnection("user1", "pass123", "https://api.example.com");
+        new UsernamePasswordConnection("user1", "pass123", "https://api.example.com");
 
     String json = objectMapper.writeValueAsString(original);
 
@@ -49,8 +47,7 @@ class ConnectionSettingsTests {
     assertTrue(json.contains("\"password\":\"pass123\""));
     assertTrue(json.contains("\"url\":\"https://api.example.com\""));
 
-    ConnectionSettings deserialized =
-            objectMapper.readValue(json, ConnectionSettings.class);
+    ConnectionSettings deserialized = objectMapper.readValue(json, ConnectionSettings.class);
 
     assertInstanceOf(UsernamePasswordConnection.class, deserialized);
     UsernamePasswordConnection conn = (UsernamePasswordConnection) deserialized;
@@ -62,8 +59,7 @@ class ConnectionSettingsTests {
   @Test
   @DisplayName("FtpConnection should serialize and deserialize as polymorphic JSON")
   void ftpConnection_shouldSerializeAndDeserializePolymorphicJson() throws Exception {
-    ConnectionSettings original =
-            new FtpConnection("ftp.example.com", "ftpuser", "ftppass", 21);
+    ConnectionSettings original = new FtpConnection("ftp.example.com", "ftpuser", "ftppass", 21);
 
     String json = objectMapper.writeValueAsString(original);
 
@@ -73,8 +69,7 @@ class ConnectionSettingsTests {
     assertTrue(json.contains("\"password\":\"ftppass\""));
     assertTrue(json.contains("\"port\":21"));
 
-    ConnectionSettings deserialized =
-            objectMapper.readValue(json, ConnectionSettings.class);
+    ConnectionSettings deserialized = objectMapper.readValue(json, ConnectionSettings.class);
 
     assertInstanceOf(FtpConnection.class, deserialized);
     FtpConnection conn = (FtpConnection) deserialized;
@@ -91,12 +86,10 @@ class ConnectionSettingsTests {
   @Test
   @DisplayName("ConnectionSettings switch should produce human-readable description")
   void connectionSettings_switchShouldProduceHumanReadableDescription() {
-    ConnectionSettings apiKey =
-            new ApiKeyConnection("secret123", "https://api.example.com");
+    ConnectionSettings apiKey = new ApiKeyConnection("secret123", "https://api.example.com");
     ConnectionSettings usernamePassword =
-            new UsernamePasswordConnection("user1", "pass123", "https://api.example.com");
-    ConnectionSettings ftp =
-            new FtpConnection("ftp.example.com", "ftpuser", "ftppass", 21);
+        new UsernamePasswordConnection("user1", "pass123", "https://api.example.com");
+    ConnectionSettings ftp = new FtpConnection("ftp.example.com", "ftpuser", "ftppass", 21);
 
     String apiKeyResult = describe(apiKey);
     String usernamePasswordResult = describe(usernamePassword);
@@ -111,12 +104,12 @@ class ConnectionSettingsTests {
 
   private String describe(ConnectionSettings settings) {
     return switch (settings) {
-      case ApiKeyConnection conn ->
-              "API Key: " + conn.apiKey() + " -> " + conn.url();
-      case UsernamePasswordConnection conn ->
-              "Username/Password: " + conn.username() + " -> " + conn.url();
-      case FtpConnection conn ->
-              "FTP: " + conn.username() + "@" + conn.host() + ":" + conn.port();
+      case ApiKeyConnection conn -> "API Key: " + conn.apiKey() + " -> " + conn.url();
+      case UsernamePasswordConnection conn -> "Username/Password: "
+          + conn.username()
+          + " -> "
+          + conn.url();
+      case FtpConnection conn -> "FTP: " + conn.username() + "@" + conn.host() + ":" + conn.port();
       case null -> "No connection settings";
     };
   }

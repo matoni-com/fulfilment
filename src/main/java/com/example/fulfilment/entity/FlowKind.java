@@ -8,5 +8,3 @@ public enum FlowKind {
   SALES_ORDER_CANCEL,
   SALES_ORDER_RETURN
 }
-
-

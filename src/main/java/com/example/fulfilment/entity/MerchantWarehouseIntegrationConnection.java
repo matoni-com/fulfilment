@@ -23,7 +23,7 @@ import lombok.Setter;
 public class MerchantWarehouseIntegrationConnection {
   @Id
   @Column(name = "id")
-  private String id;
+  private Long id;
 
   @ManyToOne
   @JoinColumn(name = "merchant_integration_configuration_id", nullable = false)
@@ -33,4 +33,3 @@ public class MerchantWarehouseIntegrationConnection {
   @JoinColumn(name = "warehouse_integration_configuration_id", nullable = false)
   private WarehouseIntegrationConfiguration warehouseIntegrationConfiguration;
 }
-

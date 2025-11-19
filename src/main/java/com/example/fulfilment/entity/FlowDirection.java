@@ -4,5 +4,3 @@ public enum FlowDirection {
   IMPORT,
   EXPORT
 }
-
-
