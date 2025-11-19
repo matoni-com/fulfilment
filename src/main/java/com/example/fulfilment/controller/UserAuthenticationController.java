@@ -7,13 +7,9 @@ import com.example.fulfilment.service.dto.AuthenticateUserCommand;
 import com.example.fulfilment.service.dto.AuthenticateUserResult;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
@@ -24,19 +20,13 @@ public class UserAuthenticationController {
 
   @PreAuthorize("permitAll()")
   @PostMapping("/authenticate")
-  public ResponseEntity<AuthenticateUserResponse> authenticate(
-      @RequestBody AuthenticateUserRequest request) {
+  @ResponseStatus(HttpStatus.OK)
+  public AuthenticateUserResponse authenticate(@RequestBody AuthenticateUserRequest request)
+      throws AuthenticationException {
 
     AuthenticateUserCommand command = authenticateUserMapper.toCommand(request);
     AuthenticateUserResult result = service.authenticate(command);
-    AuthenticateUserResponse response = authenticateUserMapper.toResponse(result);
 
-    return new ResponseEntity<>(response, HttpStatus.OK);
-  }
-
-  // TODO: improve error handling
-  @ExceptionHandler(AuthenticationException.class)
-  public ResponseEntity<Object> handleAuthenticationException(AuthenticationException e) {
-    return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    return authenticateUserMapper.toResponse(result);
   }
 }

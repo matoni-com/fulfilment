@@ -32,14 +32,9 @@ class ProductControllerTests extends BaseIntegrationSuite {
   @Test
   @WithMockUser(roles = {"MERCHANT"})
   void createProduct_shouldPersistProductToDatabase() throws Exception {
-    ProductCreateRequest product = new ProductCreateRequest();
-    product.setWarehouseId("WH");
-    product.setMerchantSku("sku123");
-    product.setManufacturerSku("mSku123");
-    product.setManufacturerName("Test Manufacturer");
-    product.setEan("1234567890123");
-    product.setItemName("Test Item");
-    product.setIsActive(true);
+    ProductCreateRequest product =
+        new ProductCreateRequest(
+            "WH", "sku123", "mSku123", "Test Manufacturer", "1234567890123", "Test Item", true);
 
     mockMvc
         .perform(
@@ -122,8 +117,9 @@ class ProductControllerTests extends BaseIntegrationSuite {
   @Test
   @WithMockUser(roles = {"MERCHANT"})
   void createProduct_shouldReturnBadRequestWhenMandatoryFieldsAreMissing() throws Exception {
-    ProductCreateRequest product = new ProductCreateRequest();
-    // Leaving all fields empty to trigger validation errors
+    // Leaving all fields null to trigger validation errors
+    ProductCreateRequest product =
+        new ProductCreateRequest(null, null, null, null, null, null, null);
 
     mockMvc
         .perform(
@@ -143,14 +139,15 @@ class ProductControllerTests extends BaseIntegrationSuite {
   @Test
   @WithMockUser(roles = {"MERCHANT"})
   void createProduct_shouldReturnBadRequestWhenEanIsInvalid() throws Exception {
-    ProductCreateRequest product = new ProductCreateRequest();
-    product.setWarehouseId("WH");
-    product.setMerchantSku("sku123");
-    product.setManufacturerSku("mSku123");
-    product.setManufacturerName("Test Manufacturer");
-    product.setEan("invalid-ean"); // Invalid EAN
-    product.setItemName("Test Item");
-
+    ProductCreateRequest product =
+        new ProductCreateRequest(
+            "WH",
+            "sku123",
+            "mSku123",
+            "Test Manufacturer",
+            "invalid-ean", // Invalid EAN
+            "Test Item",
+            true);
     mockMvc
         .perform(
             post("/api/merchant/products")
@@ -164,13 +161,15 @@ class ProductControllerTests extends BaseIntegrationSuite {
   @Test
   @WithMockUser(roles = {"MERCHANT"})
   void createProduct_shouldReturnBadRequestWhenFieldExceedsMaxLength() throws Exception {
-    ProductCreateRequest product = new ProductCreateRequest();
-    product.setWarehouseId("WH");
-    product.setMerchantSku("a".repeat(51)); // Exceeds max length of 50
-    product.setManufacturerSku("mSku123");
-    product.setManufacturerName("Test Manufacturer");
-    product.setEan("1234567890123");
-    product.setItemName("Test Item");
+    ProductCreateRequest product =
+        new ProductCreateRequest(
+            "WH",
+            "a".repeat(51), // Exceeds max length of 50
+            "mSku123",
+            "Test Manufacturer",
+            "1234567890123",
+            "Test Item",
+            true);
 
     mockMvc
         .perform(
