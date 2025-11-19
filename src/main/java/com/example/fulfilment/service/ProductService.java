@@ -1,10 +1,10 @@
 package com.example.fulfilment.service;
 
 import com.example.fulfilment.entity.Product;
+import com.example.fulfilment.exception.ProductNotFound;
 import com.example.fulfilment.repository.ProductRepository;
 import com.example.fulfilment.service.dto.ProductCreateCommand;
 import com.example.fulfilment.service.dto.ProductResult;
-import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,17 +41,11 @@ public class ProductService {
         .map(productServiceMapper::toResult);
   }
 
-  public void deactivateProduct(String merchantSku, String merchantId) {
+  public void deactivateProduct(String merchantSku, String merchantId) throws ProductNotFound {
     Product product =
         productRepository
             .findByMerchantSkuAndMerchantId(merchantSku, merchantId)
-            .orElseThrow(
-                () ->
-                    new EntityNotFoundException(
-                        "Product not found with merchantSku: "
-                            + merchantSku
-                            + " and merchantId: "
-                            + merchantId));
+            .orElseThrow(() -> new ProductNotFound(merchantSku, merchantId));
     product.setIsActive(false);
     productRepository.save(product);
   }
