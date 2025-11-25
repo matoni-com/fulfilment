@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.example.fulfilment.common.BaseIntegrationSuite;
 import com.example.fulfilment.repository.AddressRepository;
+import com.example.fulfilment.repository.MerchantFlowRepository;
 import com.example.fulfilment.repository.MerchantIntegrationConfigurationRepository;
 import com.example.fulfilment.repository.MerchantRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,6 +19,7 @@ class MerchantIntegrationConfigurationDbTests extends BaseIntegrationSuite {
 
   @Autowired private MerchantIntegrationConfigurationRepository configRepository;
   @Autowired private MerchantRepository merchantRepository;
+  @Autowired private MerchantFlowRepository merchantFlowRepository;
   @Autowired private AddressRepository addressRepository;
   @Autowired private JdbcTemplate jdbcTemplate;
   @Autowired private ObjectMapper objectMapper;
@@ -105,6 +107,74 @@ class MerchantIntegrationConfigurationDbTests extends BaseIntegrationSuite {
     ApiKeyConnection conn = (ApiKeyConnection) fromDb;
     assertThat(conn.apiKey()).isEqualTo("secret123");
     assertThat(conn.url()).isEqualTo("https://api.example.com");
+  }
+
+  @Test
+  @DisplayName("MerchantFlow enums should be stored and loaded correctly via JPA")
+  void merchantFlow_enumsShouldPersistAndLoadFromDatabase() {
+    // given
+    Merchant merchant = createValidMerchant("MT_DE_4000");
+
+    MerchantIntegrationConfiguration config = new MerchantIntegrationConfiguration();
+    config.setMerchant(merchant);
+    config.setApiKeyConnection("secret123", "https://api.example.com");
+
+    MerchantIntegrationConfiguration savedConfig = configRepository.save(config);
+
+    MerchantFlow flow = new MerchantFlow();
+    flow.setMerchantIntegrationConfiguration(savedConfig);
+    flow.setFlowKind(FlowKind.PRODUCT_IMPORT);
+    flow.setDirection(FlowDirection.IMPORT);
+    flow.setExecutionMode(ExecutionMode.ACTIVE);
+    flow.setSchedule("0 */5 * * * *");
+    flow.setEnabled(true);
+    flow.setNotes("Test flow");
+
+    MerchantFlow savedFlow = merchantFlowRepository.save(flow);
+
+    // when
+    MerchantFlow reloaded = merchantFlowRepository.findById(savedFlow.getId()).orElseThrow();
+
+    // then
+    assertThat(reloaded.getFlowKind()).isEqualTo(FlowKind.PRODUCT_IMPORT);
+    assertThat(reloaded.getDirection()).isEqualTo(FlowDirection.IMPORT);
+    assertThat(reloaded.getExecutionMode()).isEqualTo(ExecutionMode.ACTIVE);
+    assertThat(reloaded.getSchedule()).isEqualTo("0 */5 * * * *");
+    assertThat(reloaded.getEnabled()).isTrue();
+    assertThat(reloaded.getNotes()).isEqualTo("Test flow");
+  }
+
+  @Test
+  @DisplayName("MerchantFlow enums should be stored as text values in DB")
+  void merchantFlow_enumsShouldBeStoredAsTextInDatabase() {
+    // given
+    Merchant merchant = createValidMerchant("MT_DE_4001");
+
+    MerchantIntegrationConfiguration config = new MerchantIntegrationConfiguration();
+    config.setMerchant(merchant);
+    config.setApiKeyConnection("secret123", "https://api.example.com");
+
+    MerchantIntegrationConfiguration savedConfig = configRepository.save(config);
+
+    MerchantFlow flow = new MerchantFlow();
+    flow.setMerchantIntegrationConfiguration(savedConfig);
+    flow.setFlowKind(FlowKind.SALES_ORDER);
+    flow.setDirection(FlowDirection.EXPORT);
+    flow.setExecutionMode(ExecutionMode.PASSIVE);
+    flow.setEnabled(false);
+
+    MerchantFlow savedFlow = merchantFlowRepository.save(flow);
+
+    // when: read raw DB values
+    var row =
+        jdbcTemplate.queryForMap(
+            "select flow_kind, direction, execution_mode " + "from merchant_flows where id = ?",
+            savedFlow.getId());
+
+    // then
+    assertThat(row.get("flow_kind")).isEqualTo("SALES_ORDER");
+    assertThat(row.get("direction")).isEqualTo("EXPORT");
+    assertThat(row.get("execution_mode")).isEqualTo("PASSIVE");
   }
 
   // -------------------------
