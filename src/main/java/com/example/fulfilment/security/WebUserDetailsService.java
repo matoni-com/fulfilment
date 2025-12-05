@@ -1,6 +1,5 @@
 package com.example.fulfilment.security;
 
-import com.example.fulfilment.entity.Authority;
 import com.example.fulfilment.entity.User;
 import com.example.fulfilment.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -27,8 +26,7 @@ public class WebUserDetailsService implements UserDetailsService {
         org.springframework.security.core.userdetails.User.builder()
             .username(user.getUsername())
             .password(user.getPassword())
-            .authorities(
-                user.getAuthorities().stream().map(Authority::getAuthority).toArray(String[]::new))
+            .authorities(user.getAuthorities().stream().map(Enum::name).toArray(String[]::new))
             .build();
 
     return userDetails;

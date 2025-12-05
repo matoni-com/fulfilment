@@ -6,8 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.fulfilment.common.BaseIntegrationSuite;
-import com.example.fulfilment.entity.Authority;
 import com.example.fulfilment.entity.User;
+import com.example.fulfilment.entity.UserAuthority;
 import com.example.fulfilment.repository.UserRepository;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,10 +28,10 @@ public class WebUserApiSecurityTests extends BaseIntegrationSuite {
   @BeforeAll
   public void populateUsers() {
     User userWithWrongAuthority = new User("user1", passwordEncoder.encode("12345"));
-    userWithWrongAuthority.addAuthority(new Authority("SOME_AUTHORITY"));
+    userWithWrongAuthority.getAuthorities().add(UserAuthority.READ_PRODUCTS);
 
     User userWithHello2Authority = new User("user2", passwordEncoder.encode("23456"));
-    userWithHello2Authority.addAuthority(new Authority("HELLO2"));
+    userWithHello2Authority.getAuthorities().add(UserAuthority.HELLO2);
 
     User userWithoutAnyAuthority = new User("user3", passwordEncoder.encode("34567"));
 
