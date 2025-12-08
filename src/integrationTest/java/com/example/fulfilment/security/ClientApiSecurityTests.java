@@ -29,7 +29,7 @@ public class ClientApiSecurityTests extends BaseIntegrationSuite {
     var client = new Client();
     client.setApiKey("mt-key");
     client.setApiSecret(passwordEncoder.encode("mt-secret"));
-    client.setRole("MERCHANT");
+    client.setRole(ClientRole.MERCHANT);
     clientRepository.save(client);
 
     jdbcTemplate.update(
@@ -40,7 +40,7 @@ public class ClientApiSecurityTests extends BaseIntegrationSuite {
     var client2 = new Client();
     client2.setApiKey("wh-key");
     client2.setApiSecret(passwordEncoder.encode("wh-secret"));
-    client2.setRole("WAREHOUSE");
+    client2.setRole(ClientRole.WAREHOUSE);
     clientRepository.save(client2);
 
     jdbcTemplate.update(

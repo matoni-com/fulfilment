@@ -27,7 +27,7 @@ public class ClientDetailsService implements UserDetailsService {
         org.springframework.security.core.userdetails.User.builder()
             .username(client.getApiKey())
             .password(client.getApiSecret())
-            .roles(client.getRole())
+            .roles(client.getRole().name())
             .build();
 
     return userDetails;

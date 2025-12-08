@@ -1,17 +1,12 @@
 package com.example.fulfilment.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "merchant_flows")
@@ -21,6 +16,7 @@ import lombok.Setter;
 public class MerchantFlow {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
   private Long id;
 
@@ -28,15 +24,15 @@ public class MerchantFlow {
   @JoinColumn(name = "merchant_integration_configuration_id", nullable = false)
   private MerchantIntegrationConfiguration merchantIntegrationConfiguration;
 
-  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Column(name = "flow_kind", nullable = false)
   private FlowKind flowKind;
 
-  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Column(name = "direction", nullable = false)
   private FlowDirection direction;
 
-  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Column(name = "execution_mode", nullable = false)
   private ExecutionMode executionMode;
 

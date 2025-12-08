@@ -5,8 +5,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.fulfilment.common.BaseIntegrationSuite;
-import com.example.fulfilment.entity.Authority;
 import com.example.fulfilment.entity.User;
+import com.example.fulfilment.entity.UserAuthority;
 import com.example.fulfilment.repository.UserRepository;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -25,7 +25,7 @@ public class UserAuthenticationTests extends BaseIntegrationSuite {
   @BeforeAll
   public void populateUser() {
     User user = new User("johndoe", passwordEncoder.encode("12345"));
-    user.addAuthority(new Authority("some_authority"));
+    user.getAuthorities().add(UserAuthority.READ_PRODUCTS);
 
     userRepository.save(user);
   }
