@@ -1,3 +1,17 @@
+-- Enums for flow properties
+CREATE TYPE flow_kind_t AS ENUM (
+  'PRODUCT_IMPORT',
+  'STOCK_UPDATE',
+  'SALES_ORDER',
+  'SHIPMENT_NOTIFICATION',
+  'SALES_ORDER_CANCEL',
+  'SALES_ORDER_RETURN'
+);
+
+CREATE TYPE flow_direction_t AS ENUM ('IMPORT', 'EXPORT');
+
+CREATE TYPE execution_mode_t AS ENUM ('ACTIVE', 'PASSIVE');
+
 -- Integration configurations ---------------------------------------------
 
 CREATE TABLE merchant_integration_configurations (
@@ -39,58 +53,31 @@ CREATE TABLE merchant_flows (
     id INT8 GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     merchant_integration_configuration_id INT8 NOT NULL
         REFERENCES merchant_integration_configurations(id) ON DELETE CASCADE,
-
-    flow_kind TEXT NOT NULL,
-    direction TEXT NOT NULL,
-    execution_mode TEXT NOT NULL,
-
+    flow_kind flow_kind_t NOT NULL,
+    direction flow_direction_t NOT NULL,
+    execution_mode execution_mode_t NOT NULL,
     schedule TEXT,
     enabled BOOLEAN NOT NULL DEFAULT TRUE,
     last_run_at TIMESTAMPTZ,
     next_planned_run_at TIMESTAMPTZ,
-    notes TEXT,
-
-    CONSTRAINT chk_merchant_flow_kind CHECK (flow_kind IN (
-        'PRODUCT_IMPORT',
-        'STOCK_UPDATE',
-        'SALES_ORDER',
-        'SHIPMENT_NOTIFICATION',
-        'SALES_ORDER_CANCEL',
-        'SALES_ORDER_RETURN'
-    )),
-    CONSTRAINT chk_merchant_flow_direction CHECK (direction IN ('IMPORT', 'EXPORT')),
-    CONSTRAINT chk_merchant_execution_mode CHECK (execution_mode IN ('ACTIVE', 'PASSIVE'))
+    notes TEXT
 );
 
 CREATE INDEX idx_merchant_flows_merchant_integration_configuration_id
     ON merchant_flows (merchant_integration_configuration_id);
 
-
 CREATE TABLE warehouse_flows (
     id INT8 GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     warehouse_integration_configuration_id INT8 NOT NULL
         REFERENCES warehouse_integration_configurations(id) ON DELETE CASCADE,
-
-    flow_kind TEXT NOT NULL,
-    direction TEXT NOT NULL,
-    execution_mode TEXT NOT NULL,
-
+    flow_kind flow_kind_t NOT NULL,
+    direction flow_direction_t NOT NULL,
+    execution_mode execution_mode_t NOT NULL,
     schedule TEXT,
     enabled BOOLEAN NOT NULL DEFAULT TRUE,
     last_run_at TIMESTAMPTZ,
     next_planned_run_at TIMESTAMPTZ,
-    notes TEXT,
-
-    CONSTRAINT chk_warehouse_flow_kind CHECK (flow_kind IN (
-        'PRODUCT_IMPORT',
-        'STOCK_UPDATE',
-        'SALES_ORDER',
-        'SHIPMENT_NOTIFICATION',
-        'SALES_ORDER_CANCEL',
-        'SALES_ORDER_RETURN'
-    )),
-    CONSTRAINT chk_warehouse_flow_direction CHECK (direction IN ('IMPORT', 'EXPORT')),
-    CONSTRAINT chk_warehouse_execution_mode CHECK (execution_mode IN ('ACTIVE', 'PASSIVE'))
+    notes TEXT
 );
 
 CREATE INDEX idx_warehouse_flows_warehouse_integration_configuration_id

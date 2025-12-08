@@ -1,8 +1,8 @@
 package com.example.fulfilment.entity;
 
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.*;
 
 @Entity
@@ -25,14 +25,9 @@ public class User {
   @Column(name = "password", nullable = false)
   private String password;
 
-  @OneToMany(
-      mappedBy = "user",
-      fetch = FetchType.EAGER,
-      cascade = CascadeType.ALL) // cascade added so that saving user also saves authorities
-  private List<Authority> authorities = new ArrayList<>(0);
-
-  public void addAuthority(Authority authority) {
-    authority.setUser(this);
-    this.authorities.add(authority);
-  }
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(name = "users_authorities", joinColumns = @JoinColumn(name = "user_id"))
+  @Column(name = "authority")
+  @Enumerated(EnumType.STRING)
+  private Set<UserAuthority> authorities = new HashSet<>();
 }

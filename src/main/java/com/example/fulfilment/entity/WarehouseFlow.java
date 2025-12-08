@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "warehouse_flows")
@@ -22,15 +24,15 @@ public class WarehouseFlow {
   @JoinColumn(name = "warehouse_integration_configuration_id", nullable = false)
   private WarehouseIntegrationConfiguration warehouseIntegrationConfiguration;
 
-  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Column(name = "flow_kind", nullable = false)
   private FlowKind flowKind;
 
-  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Column(name = "direction", nullable = false)
   private FlowDirection direction;
 
-  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Column(name = "execution_mode", nullable = false)
   private ExecutionMode executionMode;
 

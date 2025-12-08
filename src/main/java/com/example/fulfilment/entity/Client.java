@@ -2,6 +2,8 @@ package com.example.fulfilment.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "clients")
@@ -22,5 +24,6 @@ public class Client {
   private String apiSecret;
 
   @Column(name = "role", nullable = false)
-  private String role;
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  private ClientRole role;
 }
