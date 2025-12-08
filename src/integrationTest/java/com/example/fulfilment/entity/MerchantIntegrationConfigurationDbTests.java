@@ -3,11 +3,11 @@ package com.example.fulfilment.entity;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.example.fulfilment.common.BaseIntegrationSuite;
-import com.example.fulfilment.repository.AddressRepository;
 import com.example.fulfilment.repository.MerchantFlowRepository;
 import com.example.fulfilment.repository.MerchantIntegrationConfigurationRepository;
 import com.example.fulfilment.repository.MerchantRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,15 +20,20 @@ class MerchantIntegrationConfigurationDbTests extends BaseIntegrationSuite {
   @Autowired private MerchantIntegrationConfigurationRepository configRepository;
   @Autowired private MerchantRepository merchantRepository;
   @Autowired private MerchantFlowRepository merchantFlowRepository;
-  @Autowired private AddressRepository addressRepository;
   @Autowired private JdbcTemplate jdbcTemplate;
   @Autowired private ObjectMapper objectMapper;
+
+  @AfterEach
+  void cleanDatabase() {
+    merchantFlowRepository.deleteAll();
+    configRepository.deleteAll();
+  }
 
   @Test
   @DisplayName("API_KEY connection should be stored and loaded polymorphically from DB")
   void apiKeyConnection_shouldPersistAndLoadFromDatabase() {
     // given
-    Merchant merchant = createValidMerchant("MT_DE_2000");
+    Merchant merchant = getMerchant();
 
     MerchantIntegrationConfiguration config = new MerchantIntegrationConfiguration();
     config.setMerchant(merchant);
@@ -53,7 +58,7 @@ class MerchantIntegrationConfigurationDbTests extends BaseIntegrationSuite {
   @DisplayName("FTP connection should be stored and loaded polymorphically from DB")
   void ftpConnection_shouldPersistAndLoadFromDatabase() {
     // given
-    Merchant merchant = createValidMerchant("MT_DE_2001");
+    Merchant merchant = getMerchant();
 
     MerchantIntegrationConfiguration config = new MerchantIntegrationConfiguration();
     config.setMerchant(merchant);
@@ -79,7 +84,7 @@ class MerchantIntegrationConfigurationDbTests extends BaseIntegrationSuite {
   @DisplayName("connectionSettings should be stored as polymorphic JSON in DB")
   void connectionSettings_shouldBeStoredAsJsonInDatabase() throws Exception {
     // given
-    Merchant merchant = createValidMerchant("MT_DE_2002");
+    Merchant merchant = getMerchant();
 
     MerchantIntegrationConfiguration config = new MerchantIntegrationConfiguration();
     config.setMerchant(merchant);
@@ -113,7 +118,7 @@ class MerchantIntegrationConfigurationDbTests extends BaseIntegrationSuite {
   @DisplayName("MerchantFlow enums should be stored and loaded correctly via JPA")
   void merchantFlow_enumsShouldPersistAndLoadFromDatabase() {
     // given
-    Merchant merchant = createValidMerchant("MT_DE_4000");
+    Merchant merchant = getMerchant();
 
     MerchantIntegrationConfiguration config = new MerchantIntegrationConfiguration();
     config.setMerchant(merchant);
@@ -145,10 +150,10 @@ class MerchantIntegrationConfigurationDbTests extends BaseIntegrationSuite {
   }
 
   @Test
-  @DisplayName("MerchantFlow enums should be stored as text values in DB")
-  void merchantFlow_enumsShouldBeStoredAsTextInDatabase() {
+  @DisplayName("MerchantFlow enums should be stored as named enum values in DB")
+  void merchantFlow_enumsShouldBeStoredAsNamedEnumsInDatabase() {
     // given
-    Merchant merchant = createValidMerchant("MT_DE_4001");
+    Merchant merchant = getMerchant();
 
     MerchantIntegrationConfiguration config = new MerchantIntegrationConfiguration();
     config.setMerchant(merchant);
@@ -168,7 +173,7 @@ class MerchantIntegrationConfigurationDbTests extends BaseIntegrationSuite {
     // when: read raw DB values
     var row =
         jdbcTemplate.queryForMap(
-            "select flow_kind, direction, execution_mode " + "from merchant_flows where id = ?",
+            "select flow_kind, direction, execution_mode from merchant_flows where id = ?",
             savedFlow.getId());
 
     // then
@@ -181,22 +186,7 @@ class MerchantIntegrationConfigurationDbTests extends BaseIntegrationSuite {
   // Helpers
   // -------------------------
 
-  private Merchant createValidMerchant(String id) {
-    Address address = new Address();
-    address.setStreet("Test Street");
-    address.setHouseNumber("2");
-    address.setCity("Berlin");
-    address.setPostbox("10115");
-    address.setCountry("DE");
-    address.setZip("1000");
-
-    Address savedAddress = addressRepository.save(address);
-
-    Merchant merchant = new Merchant();
-    merchant.setId(id);
-    merchant.setCompanyName("Test Merchant");
-    merchant.setAddress(address);
-
-    return merchantRepository.save(merchant);
+  private Merchant getMerchant() {
+    return merchantRepository.findById("MT").orElseThrow();
   }
 }

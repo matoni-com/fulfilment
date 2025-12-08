@@ -7,7 +7,7 @@ import com.example.fulfilment.repository.WarehouseFlowRepository;
 import com.example.fulfilment.repository.WarehouseIntegrationConfigurationRepository;
 import com.example.fulfilment.repository.WarehouseRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.stream.StreamSupport;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +27,17 @@ class WarehouseIntegrationConfigurationDbTests extends BaseIntegrationSuite {
 
   @Autowired private ObjectMapper objectMapper;
 
+  @AfterEach
+  void cleanDatabase() {
+    warehouseFlowRepository.deleteAll();
+    configRepository.deleteAll();
+  }
+
   @Test
   @DisplayName("API_KEY connection should be stored and loaded polymorphically from DB")
   void apiKeyConnection_shouldPersistAndLoadFromDatabase() {
     // given
-    Warehouse warehouse = anyExistingWarehouse();
+    Warehouse warehouse = getWarehouse();
 
     WarehouseIntegrationConfiguration config = new WarehouseIntegrationConfiguration();
     config.setWarehouse(warehouse);
@@ -56,7 +62,7 @@ class WarehouseIntegrationConfigurationDbTests extends BaseIntegrationSuite {
   @DisplayName("FTP connection should be stored and loaded polymorphically from DB")
   void ftpConnection_shouldPersistAndLoadFromDatabase() {
     // given
-    Warehouse warehouse = anyExistingWarehouse();
+    Warehouse warehouse = getWarehouse();
 
     WarehouseIntegrationConfiguration config = new WarehouseIntegrationConfiguration();
     config.setWarehouse(warehouse);
@@ -82,7 +88,7 @@ class WarehouseIntegrationConfigurationDbTests extends BaseIntegrationSuite {
   @DisplayName("connectionSettings should be stored as polymorphic JSON in DB (warehouse)")
   void connectionSettings_shouldBeStoredAsJsonInDatabase() throws Exception {
     // given
-    Warehouse warehouse = anyExistingWarehouse();
+    Warehouse warehouse = getWarehouse();
 
     WarehouseIntegrationConfiguration config = new WarehouseIntegrationConfiguration();
     config.setWarehouse(warehouse);
@@ -142,8 +148,8 @@ class WarehouseIntegrationConfigurationDbTests extends BaseIntegrationSuite {
   }
 
   @Test
-  @DisplayName("WarehouseFlow enums should be stored as correct Postgres enums in DB")
-  void warehouseFlow_enumsShouldBeStoredAsEnumTextInDatabase() {
+  @DisplayName("WarehouseFlow enums should be stored as named enum values in DB")
+  void warehouseFlow_enumsShouldBeStoredAsNamedEnumsInDatabase() {
     // given
     WarehouseIntegrationConfiguration config = createConfigForAnyWarehouse();
 
@@ -188,7 +194,7 @@ class WarehouseIntegrationConfigurationDbTests extends BaseIntegrationSuite {
   // -------------------------
 
   private WarehouseIntegrationConfiguration createConfigForAnyWarehouse() {
-    Warehouse warehouse = anyExistingWarehouse();
+    Warehouse warehouse = getWarehouse();
 
     WarehouseIntegrationConfiguration config = new WarehouseIntegrationConfiguration();
     config.setWarehouse(warehouse);
@@ -198,9 +204,7 @@ class WarehouseIntegrationConfigurationDbTests extends BaseIntegrationSuite {
     return configRepository.save(config);
   }
 
-  private Warehouse anyExistingWarehouse() {
-    return StreamSupport.stream(warehouseRepository.findAll().spliterator(), false)
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException("No warehouses found in test DB"));
+  private Warehouse getWarehouse() {
+    return warehouseRepository.findById("WH").orElseThrow();
   }
 }
