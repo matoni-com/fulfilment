@@ -1,8 +1,10 @@
 package com.example.fulfilment.security.jwt;
 
+import com.example.fulfilment.security.WebUserDetails;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import java.util.Date;
+import java.util.List;
 import javax.crypto.SecretKey;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,11 @@ public class JwtProvider {
     var username = auth.getName();
     var authorities = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
 
+    // Extract from WebApiUserDetails
+    WebUserDetails userDetails = (WebUserDetails) auth.getPrincipal();
+    List<String> merchantIds = userDetails.getMerchantIds();
+    List<String> warehouseIds = userDetails.getWarehouseIds();
+
     Date now = new Date();
     Date expirationTime = new Date(now.getTime() + expirationPeriodInMilliseconds);
 
@@ -29,6 +36,8 @@ public class JwtProvider {
             .issuedAt(now)
             .expiration(expirationTime)
             .claim("authorities", authorities)
+            .claim("merchantIds", merchantIds)
+            .claim("warehouseIds", warehouseIds)
             .signWith(jwtSignatureKey);
 
     return builder.compact();
