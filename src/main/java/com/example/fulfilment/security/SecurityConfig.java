@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,6 +22,7 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
   @Bean
   public BCryptPasswordEncoder passwordEncoder() {
@@ -50,7 +52,7 @@ public class SecurityConfig {
 
     JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtAuthManager);
 
-    return http.securityMatcher("/web/**", "/authenticate", "/hello**")
+    return http.securityMatcher("/web/**", "/authenticate", "/hello", "/hello2", "/hello2/**")
         /* This will put the JwtAuthenticationFilter after the ExceptionTranslationFilter in the filter chain.
         This way ExceptionTranslationFilter can handle exceptions that are thrown in JwtAuthenticationFilter
         since they will bubble up through the call stack. ExceptionTranslationFilter handles the exceptions

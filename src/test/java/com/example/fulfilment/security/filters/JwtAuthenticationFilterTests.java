@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +38,8 @@ public class JwtAuthenticationFilterTests {
     FilterChain chain = mock(FilterChain.class);
 
     when(authenticationManager.authenticate(new JwtAuthenticationToken("some_token")))
-        .thenReturn(new JwtAuthenticationToken("some_user", "some_token", null));
+        .thenReturn(
+            new JwtAuthenticationToken("some_user", "some_token", null, List.of(), List.of()));
 
     filter.doFilter(request, response, chain);
 
@@ -46,7 +48,7 @@ public class JwtAuthenticationFilterTests {
 
     // Authentication set in SecurityContext
     assertEquals(
-        new JwtAuthenticationToken("some_user", "some_token", null),
+        new JwtAuthenticationToken("some_user", "some_token", null, List.of(), List.of()),
         SecurityContextHolder.getContext().getAuthentication());
 
     // calls chain.doFilter at the end

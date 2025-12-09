@@ -22,10 +22,11 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     try {
       var result = jwtValidator.validateToken(jwt);
-      String username = result.getLeft();
-      var grantedAuthorities = result.getRight().stream().map(SimpleGrantedAuthority::new).toList();
+      var grantedAuthorities =
+          result.authorities().stream().map(SimpleGrantedAuthority::new).toList();
 
-      return new JwtAuthenticationToken(username, jwt, grantedAuthorities);
+      return new JwtAuthenticationToken(
+          result.username(), jwt, grantedAuthorities, result.merchantIds(), result.warehouseIds());
     } catch (InvalidJwtException e) {
       throw new BadCredentialsException("Invalid JWT", e);
     }
