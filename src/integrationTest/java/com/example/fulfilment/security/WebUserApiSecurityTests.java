@@ -6,8 +6,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.fulfilment.common.BaseIntegrationSuite;
+import com.example.fulfilment.entity.Merchant;
 import com.example.fulfilment.entity.User;
 import com.example.fulfilment.entity.UserAuthority;
+import com.example.fulfilment.repository.MerchantRepository;
 import com.example.fulfilment.repository.UserRepository;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,6 +22,8 @@ import org.springframework.test.web.servlet.MockMvc;
 public class WebUserApiSecurityTests extends BaseIntegrationSuite {
 
   @Autowired private UserRepository userRepository;
+
+  @Autowired private MerchantRepository merchantRepository;
 
   @Autowired private BCryptPasswordEncoder passwordEncoder;
 
@@ -35,9 +39,20 @@ public class WebUserApiSecurityTests extends BaseIntegrationSuite {
 
     User userWithoutAnyAuthority = new User("user3", passwordEncoder.encode("34567"));
 
+    Merchant merchant = merchantRepository.findById("MT").orElseThrow();
+
+    User userWithMerchantAccess = new User("user4", passwordEncoder.encode("45678"));
+    userWithMerchantAccess.getAuthorities().add(UserAuthority.HELLO2);
+    userWithMerchantAccess.getMerchants().add(merchant);
+
+    User userWithoutMerchantAccess = new User("user5", passwordEncoder.encode("56789"));
+    userWithoutMerchantAccess.getAuthorities().add(UserAuthority.HELLO2);
+
     userRepository.save(userWithWrongAuthority);
     userRepository.save(userWithHello2Authority);
     userRepository.save(userWithoutAnyAuthority);
+    userRepository.save(userWithMerchantAccess);
+    userRepository.save(userWithoutMerchantAccess);
   }
 
   @AfterAll
@@ -149,5 +164,59 @@ public class WebUserApiSecurityTests extends BaseIntegrationSuite {
         .perform(get("/hello2").header("Authorization", "Bearer " + token))
         .andExpect(status().isOk())
         .andExpect(content().string("Hello World!"));
+  }
+
+  @Test
+  public void authenticatedRequestWithMerchantAccessAccepted() throws Exception {
+    var body =
+        mockMvc
+            .perform(
+                post("/authenticate")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                            "username": "user4",
+                            "password": "45678"
+                        }
+                """))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+    String token = read(body, "$.access_token");
+
+    mockMvc
+        .perform(get("/hello2/MT").header("Authorization", "Bearer " + token))
+        .andExpect(status().isOk())
+        .andExpect(content().string("Hello MT!"));
+  }
+
+  @Test
+  public void authenticatedRequestWithoutMerchantAccessRejected() throws Exception {
+    var body =
+        mockMvc
+            .perform(
+                post("/authenticate")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                            "username": "user5",
+                            "password": "56789"
+                        }
+                """))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+    String token = read(body, "$.access_token");
+
+    mockMvc
+        .perform(get("/hello2/MT").header("Authorization", "Bearer " + token))
+        .andExpect(status().isForbidden())
+        .andExpect(content().string("Access denied"));
   }
 }

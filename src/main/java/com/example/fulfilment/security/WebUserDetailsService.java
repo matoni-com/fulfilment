@@ -1,8 +1,12 @@
 package com.example.fulfilment.security;
 
+import com.example.fulfilment.entity.Merchant;
 import com.example.fulfilment.entity.User;
+import com.example.fulfilment.entity.Warehouse;
 import com.example.fulfilment.repository.UserRepository;
+import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,13 +26,18 @@ public class WebUserDetailsService implements UserDetailsService {
             .orElseThrow(
                 () -> new UsernameNotFoundException("Username: " + username + " not found!"));
 
-    UserDetails userDetails =
-        org.springframework.security.core.userdetails.User.builder()
-            .username(user.getUsername())
-            .password(user.getPassword())
-            .authorities(user.getAuthorities().stream().map(Enum::name).toArray(String[]::new))
-            .build();
+    // Extract merchant and warehouse IDs
+    List<String> merchantIds = user.getMerchants().stream().map(Merchant::getId).toList();
 
-    return userDetails;
+    List<String> warehouseIds = user.getWarehouses().stream().map(Warehouse::getId).toList();
+
+    // Create authorities
+    List<SimpleGrantedAuthority> authorities =
+        user.getAuthorities().stream()
+            .map(auth -> new SimpleGrantedAuthority(auth.name()))
+            .toList();
+
+    return new WebUserDetails(
+        user.getUsername(), user.getPassword(), authorities, merchantIds, warehouseIds);
   }
 }

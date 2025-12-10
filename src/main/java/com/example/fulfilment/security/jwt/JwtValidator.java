@@ -6,7 +6,6 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import java.util.List;
 import javax.crypto.SecretKey;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,7 +17,7 @@ public class JwtValidator {
     parser = Jwts.parser().verifyWith(jwtSignatureKey).build();
   }
 
-  public Pair<String, List<String>> validateToken(String jwt) throws InvalidJwtException {
+  public JwtValidationResult validateToken(String jwt) throws InvalidJwtException {
     Claims claims;
 
     try {
@@ -30,7 +29,14 @@ public class JwtValidator {
     String username = claims.getSubject();
 
     List<String> authorities = (List<String>) claims.get("authorities", List.class);
+    List<String> merchantIds = (List<String>) claims.get("merchantIds", List.class);
+    List<String> warehouseIds = (List<String>) claims.get("warehouseIds", List.class);
 
-    return Pair.of(username, authorities);
+    // Handle nulls - return empty lists
+    if (authorities == null) authorities = List.of();
+    if (merchantIds == null) merchantIds = List.of();
+    if (warehouseIds == null) warehouseIds = List.of();
+
+    return new JwtValidationResult(username, authorities, merchantIds, warehouseIds);
   }
 }

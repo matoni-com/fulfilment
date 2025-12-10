@@ -30,4 +30,18 @@ public class User {
   @Column(name = "authority")
   @Enumerated(EnumType.STRING)
   private Set<UserAuthority> authorities = new HashSet<>();
+
+  @ManyToMany(fetch = FetchType.EAGER)
+  @JoinTable(
+      name = "users_merchants",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "merchant_id"))
+  private Set<Merchant> merchants = new HashSet<>();
+
+  @ManyToMany(fetch = FetchType.EAGER)
+  @JoinTable(
+      name = "users_warehouses",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "warehouse_id"))
+  private Set<Warehouse> warehouses = new HashSet<>();
 }
